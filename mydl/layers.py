@@ -19,6 +19,7 @@ class Linear(Layer):
         # super() used because the class Linear calls the __init__ method of the parent class Layer. Thus Linear inherits the properties of Layer. 
         super().__init__()
 
+        # creates a random weight matrix W of shape (fan_in, fan_out) and a bias vector b of shape (1, fan_out).
         # dtype = torch.float32 sets the data type to 32-bit float.
         # requires_grad = False indicates that the parameters will not be updated during training, we will do the training. 
         # device = cuda specifies that the parameters should be stored on the GPU for faster computation.
