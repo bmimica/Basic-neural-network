@@ -25,11 +25,16 @@ class Linear(Layer):
         # device = cuda specifies that the parameters should be stored on the GPU for faster computation.
         self.parameters['W'] = torch.randn((fan_in, fan_out), dtype = torch.float32, requires_grad = False, device = 'cpu')
         self.parameters['b'] = torch.zeros((1,fan_out), dtype = torch.float32, requires_grad = False)
-        self.n_parameters = fan_in * fan_out + fan_out
+        self.parameters = fan_in * fan_out + fan_out
 
     def forward(self, x):
+        # I save the input x so after I put it in the backward pass
+        self.x = x
+        self.y = x @ self.parameters['W'] + self.parameters['b']
         return x @ self.parameters['W'] + self.parameters['b']
     
+    def backward(self, dL_dy):
+        (dL_dy @ self.x).t()
 
 # We define the sigmoid activation function as a layer.
 class Sigmoid(Layer):
@@ -38,4 +43,6 @@ class Sigmoid(Layer):
         super().__init__()
 
     def forward(self, x):
-        return 1 / (1 + torch.exp(-x))
+        self.x = x
+        self.y = 1/(1 + torch.exp(-x))
+        return self.y

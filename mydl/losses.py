@@ -16,3 +16,7 @@ class MSE(Loss):
     # __call__ allows us to call the instance of the class as a function.
     def __call__(self, y_pred, y_true):
         return torch.mean( (y_pred - y_true)**2 )
+    
+    def backward(self, y_pred, y_train):
+        n_samples = y_pred.shape[0]
+        dL_dy = (2/n_samples)* (y_pred-y_train).t()
