@@ -5,6 +5,7 @@ class Layer:
 
     def __init__(self):
         self.parameters = {}
+        self.gradL_d = {}
 
     def forward(self, x):
         raise NotImplementedError('Forward method not implemented.')
@@ -25,7 +26,7 @@ class Linear(Layer):
         # device = cuda specifies that the parameters should be stored on the GPU for faster computation.
         self.parameters['W'] = torch.randn((fan_in, fan_out), dtype = torch.float32, requires_grad = False, device = 'cpu')
         self.parameters['b'] = torch.zeros((1,fan_out), dtype = torch.float32, requires_grad = False)
-        self.parameters = fan_in * fan_out + fan_out
+        self.n_parameters = fan_in * fan_out + fan_out
 
     def forward(self, x):
         # I save the input x so after I put it in the backward pass
@@ -34,7 +35,10 @@ class Linear(Layer):
         return x @ self.parameters['W'] + self.parameters['b']
     
     def backward(self, dL_dy):
-        (dL_dy @ self.x).t()
+        self.gradL_d['W'] = ( dL_dy @ self.x ).t()
+        self.gradL_d['b'] = torch.sum(dL_dy, dim=1, keepdim=True).t()
+        dL_dx = self.parameters['W'] @ dL_dy
+        return dL_dx
 
 # We define the sigmoid activation function as a layer.
 class Sigmoid(Layer):
@@ -46,3 +50,7 @@ class Sigmoid(Layer):
         self.x = x
         self.y = 1/(1 + torch.exp(-x))
         return self.y
+    
+    def backward(self, dL_dy):
+        dL_dx = dL_dy * ( self.y * (1 - self.y) ).t()
+        return dL_dx

@@ -18,5 +18,7 @@ class MSE(Loss):
         return torch.mean( (y_pred - y_true)**2 )
     
     def backward(self, y_pred, y_train):
+
         n_samples = y_pred.shape[0]
         dL_dy = (2/n_samples)* (y_pred-y_train).t()
+        return dL_dy
